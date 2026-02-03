@@ -8,33 +8,30 @@ This project is a 3D interactive data visualization built as a preliminary assig
 
 ## 🚀 Live Demo
 
-**[[Link to Live Project:](https://kasatria-assignment.netlify.app/)]** 
+**[[Link to Live Project:]]** (https://kasatria-assignment.netlify.app/)
+
 
 ## ✨ Features Implemented
 
 ### 1. Authentication & Security
 
-* 
-**Google Sign-In:** Integrated **Google Identity Services** to authenticate users before accessing the visualization, matching the specific design requirements (Image A).
+* **Google Sign-In:** Integrated **Google Identity Services** to authenticate users before accessing the visualization, matching the specific design requirements (Image A).
 
 
 * **Secure UI:** The 3D environment and UI controls remain hidden until a successful OAuth token is received.
 
 ### 2. Data Integration
 
-* 
-**Live Data Source:** Fetches data directly from a published **Google Sheet (CSV)** using `PapaParse`.
+* **Live Data Source:** Fetches data directly from a published **Google Sheet (CSV)** using `PapaParse`.
 
 
-* 
-**Dynamic Parsing:** Automatically maps CSV columns (Name, Photo, Country, Net Worth) to the 3D cards.
+* **Dynamic Parsing:** Automatically maps CSV columns (Name, Photo, Country, Net Worth) to the 3D cards.
 
 
 
 ### 3. Visualization & Design
 
-* 
-**3D Card Design:** Replicates the "Periodic Table" style tile structure.
+* **3D Card Design:** Replicates the "Periodic Table" style tile structure.
 
 
 * **Conditional Formatting:** Tiles are color-coded based on **Net Worth** logic:
@@ -44,24 +41,19 @@ This project is a 3D interactive data visualization built as a preliminary assig
 
 
 
-
 * **Modern UI:** Features a responsive **Glassmorphism** interface with animated backgrounds and mobile-friendly controls.
 
 ### 4. Geometric Layouts
 
 Users can seamlessly switch between four distinct 3D arrangements:
 
-* 
-**Table:** A standard periodic table layout arranged in a **20x10** grid.
+* **Table:** A standard periodic table layout arranged in a **20x10** grid.
 
 
 * **Sphere:** A mathematically calculated 3D sphere distribution.
-* 
-**Helix:** A custom **Double Helix** structure (two intertwined strands).
+* **Helix:** A custom **Double Helix** structure (two intertwined strands).
 
-
-* 
-**Grid:** A specific 3D block arrangement of **5x4x10** (Width x Height x Depth).
+* **Grid:** A specific 3D block arrangement of **5x4x10** (Width x Height x Depth).
 
 
 
