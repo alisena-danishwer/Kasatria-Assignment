@@ -3,7 +3,8 @@ const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQAJGlgf_3Ayhvl
 
 let camera, scene, renderer, controls;
 const objects = [];
-const targets = { table: [], sphere: [], helix: [], grid: [] };
+// Added 'pyramid' to targets
+const targets = { table: [], sphere: [], helix: [], grid: [], pyramid: [] };
 
 // --- 1. LOGIN & AUTHENTICATION ---
 function handleCredentialResponse(response) {
@@ -12,22 +13,17 @@ function handleCredentialResponse(response) {
         console.log("User:", responsePayload.name);
         
         const loginOverlay = document.getElementById('login-overlay');
-        const uiContainer = document.getElementById('ui-container'); // Get UI element
+        const uiContainer = document.getElementById('ui-container');
         
-        // 1. Fade out Login
         loginOverlay.style.transition = 'opacity 0.6s ease';
         loginOverlay.style.opacity = '0';
         
-        // 2. Wait for fade, then switch views
         setTimeout(() => {
             loginOverlay.style.display = 'none';
-            uiContainer.style.display = 'flex'; // Use Flex to center the menu
-            
-            // 3. Start App
+            uiContainer.style.display = 'flex';
             init();
             animate();
         }, 600);
-
     } catch (e) {
         console.error("Auth Error:", e);
     }
@@ -42,13 +38,11 @@ function decodeJwtResponse(token) {
 
 // --- 2. CORE APP LOGIC ---
 function init() {
-    // Camera
     camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 10000);
     camera.position.z = 3000;
 
     scene = new THREE.Scene();
 
-    // Data Load
     Papa.parse(CSV_URL, {
         download: true,
         header: true,
@@ -61,18 +55,15 @@ function init() {
         }
     });
 
-    // Renderer
     renderer = new THREE.CSS3DRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.getElementById('container').appendChild(renderer.domElement);
 
-    // Controls
     controls = new THREE.TrackballControls(camera, renderer.domElement);
     controls.minDistance = 500;
     controls.maxDistance = 6000;
     controls.addEventListener('change', render);
 
-    // Listeners
     setupMenuButtons();
     window.addEventListener('resize', onWindowResize, false);
 }
@@ -83,7 +74,10 @@ function setupMenuButtons() {
         btn.addEventListener('click', (e) => {
             buttons.forEach(b => b.classList.remove('active'));
             e.target.classList.add('active');
-            transform(targets[e.target.id], 2000);
+            // Check if the target exists before transforming
+            if (targets[e.target.id]) {
+                transform(targets[e.target.id], 2000);
+            }
         });
     });
 }
@@ -94,14 +88,12 @@ function createObjects(data) {
         const element = document.createElement('div');
         element.className = 'element';
         
-        // Logic: Clean currency string and assign color
         let netWorthRaw = item[' Net Worth '] || item['Net Worth'] || "0";
         let netWorthVal = parseFloat(netWorthRaw.replace(/[^0-9.-]+/g,""));
         
-        // Dynamic Color Logic (Red < 100k, Orange > 100k, Green > 200k)
-        let bgColor = 'rgba(239, 48, 34, 0.75)'; // Red base
-        if (netWorthVal > 200000) bgColor = 'rgba(58, 180, 72, 0.75)'; // Green base
-        else if (netWorthVal > 100000) bgColor = 'rgba(255, 165, 0, 0.75)'; // Orange base
+        let bgColor = 'rgba(239, 48, 34, 0.75)'; // Red
+        if (netWorthVal > 200000) bgColor = 'rgba(58, 180, 72, 0.75)'; // Green
+        else if (netWorthVal > 100000) bgColor = 'rgba(255, 165, 0, 0.75)'; // Orange
         
         element.style.backgroundColor = bgColor;
 
@@ -122,7 +114,7 @@ function createObjects(data) {
 }
 
 function createLayouts(data) {
-    // Table
+    // --- TABLE ---
     for (let i = 0; i < objects.length; i++) {
         const object = new THREE.Object3D();
         const col = i % 20;
@@ -132,7 +124,7 @@ function createLayouts(data) {
         targets.table.push(object);
     }
 
-    // Sphere
+    // --- SPHERE ---
     const vector = new THREE.Vector3();
     for (let i = 0, l = objects.length; i < l; i++) {
         const phi = Math.acos(-1 + (2 * i) / l);
@@ -144,7 +136,7 @@ function createLayouts(data) {
         targets.sphere.push(object);
     }
 
-    // Double Helix
+    // --- HELIX ---
     for (let i = 0, l = objects.length; i < l; i++) {
         const theta = i * 0.175 + Math.PI;
         const y = -(i * 8) + 450;
@@ -159,7 +151,7 @@ function createLayouts(data) {
         targets.helix.push(object);
     }
 
-    // Grid 5x4x10
+    // --- GRID ---
     for (let i = 0; i < objects.length; i++) {
         const object = new THREE.Object3D();
         const x = (i % 5) * 400 - 800;
@@ -167,6 +159,48 @@ function createLayouts(data) {
         const z = (Math.floor(i / 20) * 1000) - 2000;
         object.position.set(x, y, z);
         targets.grid.push(object);
+    }
+
+    // --- PYRAMID (TETRAHEDRON) ---
+    // A tetrahedron is formed by stacking triangles of decreasing size.
+    // Layer 1: 1 item (Tip)
+    // Layer 2: 3 items
+    // Layer 3: 6 items
+    // ...
+    let pyramidIter = 0;
+    // We loop through layers (i) until we run out of objects
+    for (let i = 1; pyramidIter < objects.length; i++) {
+        // For each layer, we form a triangle.
+        // 'j' is the row within the triangle layer
+        for (let j = 0; j < i; j++) {
+            // 'k' is the column within that row
+            for (let k = 0; k <= j; k++) {
+                if (pyramidIter >= objects.length) break;
+
+                const object = new THREE.Object3D();
+                
+                // Spacing constants
+                const dist = 160; 
+                const heightDist = 140;
+
+                // MATH EXPLANATION:
+                // x: Center the row. (k - j/2) centers items in a row of width j.
+                const x = (k - j / 2) * dist;
+                
+                // z: Stack rows deep. (j - (i - 1) / 2) centers the triangle depth.
+                const z = (j - (i - 1) / 2) * dist;
+                
+                // y: Stack layers vertically downwards from a high point (800)
+                const y = -(i * heightDist) + 800;
+
+                object.position.set(x, y, z);
+                
+                // We keep the rotation 0,0,0 so text is readable (like Grid)
+                targets.pyramid.push(object);
+                
+                pyramidIter++;
+            }
+        }
     }
 }
 
