@@ -9,7 +9,7 @@ This project is a 3D interactive data visualization built as a preliminary assig
 
 ## 🚀 Live Demo
 
-**[Link to Live Project]** ([Replace this with your Netlify URL](https://kasatria-assignment.netlify.app/))
+**[Link to Live Project]** ([https://kasatria-assignment.netlify.app/])
 
 ---
 
